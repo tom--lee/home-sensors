@@ -1,0 +1,1 @@
+*/5 * * * * python3 /home/tomlee/dev/DHT22_Python/sense-dht22.py >> /home/tomlee/output/temp.dat
