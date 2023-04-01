@@ -1,12 +1,19 @@
+body {
+    color: #f2f2f2;
+    background-color: black;
+  }
+
 #time {
     position: absolute;
     top: 0;
     left: 0;
     width: 50%;
     height: 50%;
-    font-size: 10vw;
+    font-size: 15vw;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 500;
   }
   
