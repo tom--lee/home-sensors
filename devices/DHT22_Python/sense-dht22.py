@@ -15,9 +15,9 @@ time.sleep(1)
 result = instance.read()
 while (not result.is_valid()):
     result = instance.read()
-time = datetime.datetime.utcnow().isoformat(timespec = "milliseconds") + 'Z'
-temperature = "%-3.1f" % result.temperature
-humidity = "%-3.1f" % result.humidity
+time = datetime.datetime.utcnow().isoformat(timespec = "milliseconds")
+temperature = "%6.1f" % result.temperature
+humidity = "%6.1f" % result.humidity
 print("{} {} {}".format(time, temperature, humidity))
 
 GPIO.cleanup()
