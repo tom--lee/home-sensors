@@ -1,26 +1,24 @@
-function updateTime() {
+//import  {pad} from pad
+
+function format_time(time) {
+    const hours24 = time.getHours()
+    const hours = hours24 % 12
+    const formatted_hours = (hours === 0 ? 12 : hours).toString().padStart(2, ' ');
+    const formatted_minutes = time.getMinutes().toString().padStart(2, '0');
+    return formatted_hours + ":" + formatted_minutes
+  }
+
+function update_time() {
     // Get the current time
-    const currentTime = new Date();
-  
-    // Get the hours and minutes
-    let hours = currentTime.getHours();
-    let minutes = currentTime.getMinutes();
-  
-    // Add leading zeros if necessary
-    if (hours < 10) {
-      hours = "0" + hours;
-    }
-    if (minutes < 10) {
-      minutes = "0" + minutes;
-    }
-  
+    const current_time = new Date();
+    const text = format_time(current_time);
     // Set the time in the span element
-    document.getElementById("time").innerHTML = `${hours}:${minutes}`;
+    document.getElementById("time").innerHTML = text;
   }
   
   // Call the function once to display the time immediately
-  updateTime();
+  update_time();
   
   // Update the time every second
-  setInterval(updateTime, 1000);
+  setInterval(update_time, 1000);
   

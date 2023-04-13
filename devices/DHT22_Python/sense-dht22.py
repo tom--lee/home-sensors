@@ -18,6 +18,8 @@ while (not result.is_valid()):
 time = datetime.datetime.utcnow().isoformat(timespec = "milliseconds")
 temperature = "%6.1f" % result.temperature
 humidity = "%6.1f" % result.humidity
-print("{} {} {}".format(time, temperature, humidity))
-
+json = '{' + \
+    '"time": "{}", "temperature": {}, "humidity": {}'.format(time, temperature, humidity) \
+    + '}'
+print(json)
 GPIO.cleanup()
