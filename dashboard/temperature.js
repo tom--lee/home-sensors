@@ -21,6 +21,16 @@ async function get_temperature() {
     return (await get_sensor_data()).temperature
 }
 
+async function get_bom_temperature() {
+    const bomEndpoint = "http://www.bom.gov.au/fwo/IDN60801/IDN60801.94729.json"
+    const response = await fetch(bomEndpoint, {mode: "no-cors"})
+    if (!response.ok) {
+        return response.status
+    }
+    const responseJson = await response.json()
+    return responseJson.observations.data[0].air_temp
+}
+
 async function update_temperature() {
     // Get the current time
     const temperature = await get_temperature()
@@ -34,9 +44,24 @@ async function update_temperature() {
     document.getElementById("temperature").innerHTML = text;
 }
 
+async function update_bom_temperature() {
+    // Get the current time
+    const temperature = await get_bom_temperature()
+    if (typeof(temperature) !== "number") {
+        console.log("no temperature reading " + temperature)
+        return
+    }
+
+    const text = format_temperature(temperature);
+    // Set the time in the span element
+    document.getElementById("bom-temperature").innerHTML = text;
+
+}
+
 // Call the function once to display the time immediately
 update_temperature();
 
-// Update the time every second
-setInterval(update_temperature, 10000);
+// Update the temperature every minute
+setInterval(update_bom_temperature, 60000);
+setInterval(update_temperature, 60000);
 

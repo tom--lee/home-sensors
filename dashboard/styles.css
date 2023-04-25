@@ -16,6 +16,20 @@ body {
     font-family: "Consolas", "Courier New", monospace;
     font-weight: 500;
   }
+
+  #bom-temperature {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: 50%;
+    font-size: 10vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 500;
+  }
   
   #temperature {
     position: absolute;
