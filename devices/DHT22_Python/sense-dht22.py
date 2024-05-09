@@ -28,8 +28,8 @@ def sense():
     result = instance.read()
     while (not result.is_valid()):
         result = instance.read()
-    temperature = "%6.1f" % result.temperature
-    humidity = "%6.1f" % result.humidity
+    temperature = "%.1f" % result.temperature
+    humidity = "%.1f" % result.humidity
     values = '{}_{}'.format(temperature, humidity)
     url = 'http://{}:{}/{}'.format(host, port, deviceId)
     try:
