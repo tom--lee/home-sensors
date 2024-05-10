@@ -5,7 +5,8 @@ import os
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone
-from urllib.parse import urlparse, parse_qs
+import urllib.request
+import urllib.error
 
 config = json.load(sys.stdin)
 
@@ -28,6 +29,30 @@ def read_html_file():
 
 def handle_get_home():
     return read_html_file()
+
+def getBomMeasurements():
+    bomEndpoint = "http://www.bom.gov.au/fwo/IDN60801/IDN60801.94729.json"
+    responseJson = {}
+    try:
+        request = urllib.request.Request(
+            bomEndpoint,
+            # BOM will reject requests that appear automated.
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0'
+            }
+        )
+        with urllib.request.urlopen(request) as response:
+            responseJson = json.load(response)
+    except urllib.error.URLError as e:
+        print('error: ' + e.reason)
+        print(e.args)
+    #responseJson = json.load(responseText)
+    temperature = responseJson['observations']['data'][0]['air_temp']
+    return {
+        "timestamp": "",
+        "temperature": temperature,
+        "humidity": 0
+    }
 
 def handle_put_device_value(device_id, value):
     now = datetime.now(timezone.utc)
@@ -77,10 +102,14 @@ class SimpleWebServer(BaseHTTPRequestHandler):
             self.wfile.write(handle_get_home().encode())
         elif "/latest" in self.path:
             device_id = self.path.split('/')[1]
+            if device_id == 'bom':
+                response = json.dumps(getBomMeasurements()).encode()
+            else:
+                response = handle_get_device_latest(device_id).encode()
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(handle_get_device_latest(device_id).encode())
+            self.wfile.write(response)
         else:
             self.send_response(404)
             self.end_headers()

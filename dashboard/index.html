@@ -108,18 +108,7 @@
       return JSON.parse(responseBody);
     }
 
-    async function get_bom_temperature() {
-      const bomEndpoint = "http://www.bom.gov.au/fwo/IDN60801/IDN60801.94729.json"
-      const response = await fetch(bomEndpoint, { mode: "no-cors" })
-      if (!response.ok) {
-        return response.status
-      }
-      const responseJson = await response.json()
-      return responseJson.observations.data[0].air_temp
-    }
-
     async function update_temperature() {
-      // Get the current time
       const temperature = (await get_sensor_data('living-room')).temperature
       if (typeof (temperature) !== "number") {
         console.log("no temperature reading " + temperature)
@@ -132,8 +121,7 @@
     }
 
     async function update_bom_temperature() {
-      // Get the current time
-      const temperature = await get_bom_temperature()
+      const temperature = (await get_sensor_data('bom')).temperature
       if (typeof (temperature) !== "number") {
         console.log("no temperature reading " + temperature)
         return
@@ -147,6 +135,7 @@
 
     // Call the function once to display the time immediately
     update_temperature();
+    update_bom_temperature();
 
     // Update the temperature every minute
     setInterval(update_bom_temperature, 60000);
