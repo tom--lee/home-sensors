@@ -5,6 +5,7 @@ import urllib.request
 import urllib.error
 import json
 import sys
+from http.client import HTTPConnection
 
 config = json.load(sys.stdin)
 
@@ -23,6 +24,9 @@ GPIO.setmode(GPIO.BCM)
 # read data using pin 14
 instance = dht22.DHT22(pin=4)
 
+hostname = '{}:{}'.format(host, port)
+connection = HTTPConnection(hostname)
+
 time.sleep(1)
 def sense():
     result = instance.read()
@@ -31,13 +35,10 @@ def sense():
     temperature = "%.1f" % result.temperature
     humidity = "%.1f" % result.humidity
     values = '{}_{}'.format(temperature, humidity)
-    url = 'http://{}:{}/{}'.format(host, port, deviceId)
-    try:
-        with urllib.request.urlopen('{}/{}'.format(url, values)) as response:
-            responseText = response.read()
-            print(responseText)
-    except urllib.error.URLError as e:
-        print(e.reason)
+    requestPath = '/' + deviceId + '/' + values
+    connection.request("PUT", requestPath)
+    response = connection.getresponse()
+    print(response)
 
 count = 0
 while True:
