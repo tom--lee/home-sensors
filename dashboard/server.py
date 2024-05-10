@@ -37,7 +37,7 @@ def handle_put_device_value(device_id, value):
     year = now.year
     month = now.month
     path = data_path(device_id, year, month)
-    with open(f"{device_id}.csv", "a") as file:
+    with open(path, "a") as file:
         file.write(f"{timestamp},{temperature},{humidity}\n")
     return f"Data saved for {device_id}"
 
