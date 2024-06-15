@@ -119,11 +119,15 @@
     function format_date(current_time) {
       const day = days[current_time.getDay()];
       const dayOfMonth = current_time.getDate().toString();
-      const suffix = {
+      const override = {
         "1": "st",
         "2": "nd",
         "3": "rd",
-      }[dayOfMonth.slice(1)] ?? 'th'
+        "21": "st",
+        "22": "nd",
+        "23": "rd",
+        "31": "st",
+      }[dayOfMonth] ?? 'th'
       const month = months[current_time.getMonth()];
       const text = format_time(current_time);
       return `${day} ${dayOfMonth}${suffix} ${month}`; 
