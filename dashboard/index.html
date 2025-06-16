@@ -119,7 +119,7 @@
     function format_date(current_time) {
       const day = days[current_time.getDay()];
       const dayOfMonth = current_time.getDate().toString();
-      const override = {
+      const suffix = {
         "1": "st",
         "2": "nd",
         "3": "rd",
