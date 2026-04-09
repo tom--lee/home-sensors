@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:pysolarmanv5.readthedocs.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.solarmanpv.com)",
+      "WebFetch(domain:community.openhab.org)",
+      "WebFetch(domain:static.csisolar.com)",
+      "WebFetch(domain:community.home-assistant.io)",
+      "WebFetch(domain:solis-modbus.readthedocs.io)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/davidrapan/ha-solarman/main/custom_components/solarman/inverter_definitions/hinen_hybrid.yaml\")",
+      "Bash(pip3 show:*)"
+    ]
+  }
+}
