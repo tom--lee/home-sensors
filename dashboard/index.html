@@ -226,11 +226,11 @@
       const row = (icon, kw, extra='') =>
         `<span>${icon}</span><span class="solar-kw">${kw}</span><span>${extra}</span>`
       document.getElementById("solar").innerHTML =
+        row('🔌', `<span class="solar-load">${(solar.load_w / 1000).toFixed(1)} kW</span>`) +
         row('☀',  `<span class="solar-pv">${(solar.pv_w / 1000).toFixed(1)} kW</span>`) +
-        row('⚡', `<span class="solar-grid">${sign(net_grid)}${(net_grid / 1000).toFixed(1)} kW</span>`) +
         row('🔋', `<span class="solar-batt-kw">${sign(solar.batt_w)}${(solar.batt_w / 1000).toFixed(1)} kW</span>`,
                   `<span class="solar-batt-soc">${Math.round(solar.batt_soc)}%</span>`) +
-        row('🔌', `<span class="solar-load">${(solar.load_w / 1000).toFixed(1)} kW</span>`)
+        row('⚡', `<span class="solar-grid">${sign(net_grid)}${(net_grid / 1000).toFixed(1)} kW</span>`)
     }
 
     // Call the function once to display the time immediately
