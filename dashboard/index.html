@@ -50,12 +50,18 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      align-items: flex-end;
       gap: 1vw;
-      padding: 0 2vw 2vw 0;
+      padding: 0 2vw 2vw 2vw;
       box-sizing: border-box;
       font-family: "Consolas", "Courier New", monospace;
       font-weight: 500;
+    }
+
+    #temps > span {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.3em;
     }
 
     #solar {
@@ -188,7 +194,7 @@
         console.log("no temperature reading", data)
         return
       }
-      document.getElementById("temperature").innerHTML = `🏠 ${format_temperature(temperature)}`;
+      document.getElementById("temperature").innerHTML = `<span>${format_temperature(temperature)}</span><span>🏠</span>`;
     }
 
     async function update_bom_temperature() {
@@ -198,7 +204,7 @@
         console.log("no bom temperature reading", data)
         return
       }
-      document.getElementById("bom-temperature").innerHTML = `🌳 ${format_temperature(temperature)}`;
+      document.getElementById("bom-temperature").innerHTML = `<span>${format_temperature(temperature)}</span><span>🌳</span>`;
     }
 
     const SOLAR_FIELDS = [
