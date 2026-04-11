@@ -40,12 +40,12 @@
       font-weight: 500;
     }
 
-    #bom-temperature {
+    #temperature {
       position: absolute;
-      bottom: 0;
+      bottom: 20%;
       right: 0;
       width: 50%;
-      height: 40%;
+      height: 20%;
       font-size: 10vw;
       display: flex;
       justify-content: center;
@@ -54,12 +54,12 @@
       font-weight: 500;
     }
 
-    #temperature {
+    #bom-temperature {
       position: absolute;
       bottom: 0;
-      left: 0;
+      right: 0;
       width: 50%;
-      height: 40%;
+      height: 20%;
       font-size: 10vw;
       display: flex;
       justify-content: center;
@@ -67,6 +67,30 @@
       font-family: "Consolas", "Courier New", monospace;
       font-weight: 500;
     }
+
+    #solar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50%;
+      height: 40%;
+      font-size: 4vw;
+      display: grid;
+      grid-template-columns: 1.5em auto auto;
+      align-content: space-around;
+      align-items: center;
+      padding: 0 2vw 0 0;
+      box-sizing: border-box;
+      font-family: "Consolas", "Courier New", monospace;
+      font-weight: 500;
+    }
+
+    .solar-kw  { text-align: right; }
+    .solar-pv  { color: #64c864; }
+    .solar-grid { color: #e36464; }
+    .solar-batt-kw  { color: #6496e3; }
+    .solar-batt-soc { color: #6496e3; padding-left: 0.5em; }
+    .solar-load { color: #e3a864; }
   </style>
 </head>
 
@@ -75,6 +99,7 @@
   <span id="time"></span>
   <span id="temperature"></span>
   <span id="bom-temperature"></span>
+  <div id="solar"></div>
 
   <script>
 
@@ -165,37 +190,58 @@
     }
 
     async function update_temperature() {
-      const temperature = (await get_sensor_data('living-room')).temperature
-      if (typeof (temperature) !== "number") {
-        console.log("no temperature reading " + temperature)
+      const data = await get_sensor_data('living-room')
+      const temperature = parseFloat(data.value.split('_')[0])
+      if (isNaN(temperature)) {
+        console.log("no temperature reading", data)
         return
       }
-
-      const text = format_temperature(temperature);
-      // Set the time in the span element
-      document.getElementById("temperature").innerHTML = text;
+      document.getElementById("temperature").innerHTML = format_temperature(temperature);
     }
 
     async function update_bom_temperature() {
-      const temperature = (await get_sensor_data('bom')).temperature
-      if (typeof (temperature) !== "number") {
-        console.log("no temperature reading " + temperature)
+      const data = await get_sensor_data('bom')
+      const temperature = parseFloat(data.value)
+      if (isNaN(temperature)) {
+        console.log("no bom temperature reading", data)
         return
       }
+      document.getElementById("bom-temperature").innerHTML = format_temperature(temperature);
+    }
 
-      const text = format_temperature(temperature);
-      // Set the time in the span element
-      document.getElementById("bom-temperature").innerHTML = text;
+    const SOLAR_FIELDS = [
+      "pv_w", "batt_soc", "batt_v", "batt_w", "grid_import_w", "grid_export_w",
+      "load_w", "pv_today_kwh", "pv_total_kwh", "load_today_kwh",
+      "load_total_kwh", "imp_today_kwh", "imp_total_kwh",
+      "exp_today_kwh", "exp_total_kwh"
+    ];
 
+    async function update_solar() {
+      const data = await get_sensor_data('solar')
+      if (!data.value) return
+      const vals = data.value.split('_').map(Number)
+      const solar = Object.fromEntries(SOLAR_FIELDS.map((k, i) => [k, vals[i]]))
+      const sign = v => v >= 0 ? '+' : ''
+      const net_grid = solar.grid_import_w - solar.grid_export_w
+      const row = (icon, kw, extra='') =>
+        `<span>${icon}</span><span class="solar-kw">${kw}</span><span>${extra}</span>`
+      document.getElementById("solar").innerHTML =
+        row('☀',  `<span class="solar-pv">${(solar.pv_w / 1000).toFixed(1)} kW</span>`) +
+        row('⚡', `<span class="solar-grid">${sign(net_grid)}${(net_grid / 1000).toFixed(1)} kW</span>`) +
+        row('🔋', `<span class="solar-batt-kw">${sign(solar.batt_w)}${(solar.batt_w / 1000).toFixed(1)} kW</span>`,
+                  `<span class="solar-batt-soc">${Math.round(solar.batt_soc)}%</span>`) +
+        row('🔌', `<span class="solar-load">${(solar.load_w / 1000).toFixed(1)} kW</span>`)
     }
 
     // Call the function once to display the time immediately
     update_temperature();
     update_bom_temperature();
+    update_solar();
 
     // Update the temperature every minute
     setInterval(update_bom_temperature, 60000);
     setInterval(update_temperature, 10000);
+    setInterval(update_solar, 60000);
   </script>
 </body>
 

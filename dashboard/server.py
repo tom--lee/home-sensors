@@ -20,7 +20,7 @@ if not os.path.isdir(data_dir):
     os.mkdir(data_dir)
 
 def data_path(device_id, year, month):
-    filename = "{}_{}-{}.csv".format(device_id, year, month)
+    filename = "{}_{}-{:02d}.csv".format(device_id, year, month)
     return os.path.join(data_dir, filename)
 
 def read_html_file():
@@ -46,24 +46,20 @@ def getBomMeasurements():
     except urllib.error.URLError as e:
         print('error: ' + e.reason)
         print(e.args)
-    #responseJson = json.load(responseText)
     temperature = responseJson['observations']['data'][0]['air_temp']
     return {
         "timestamp": "",
-        "temperature": temperature,
-        "humidity": 0
+        "value": str(temperature),
     }
 
 def handle_put_device_value(device_id, value):
     now = datetime.now(timezone.utc)
     timestamp = now.isoformat()
-    temperature, humidity = value.split('_', 1)
-    now = datetime.now()
     year = now.year
     month = now.month
     path = data_path(device_id, year, month)
     with open(path, "a") as file:
-        file.write(f"{timestamp},{temperature},{humidity}\n")
+        file.write(f"{timestamp},{value}\n")
     return f"Data saved for {device_id}"
 
 def handle_get_device_latest(device_id):
@@ -82,12 +78,11 @@ def handle_get_device_latest(device_id):
     try:
         with open(path, "r") as file:
             lines = file.readlines()
-            latest = lines[-1].strip().split(',')
+            latest = lines[-1].strip().split(',', 1)
             return json.dumps(
                 {
                     "timestamp": latest[0],
-                    "temperature": float(latest[1]),
-                    "humidity": float(latest[2]),
+                    "value": latest[1],
                 }
             )
     except (IOError, IndexError):
