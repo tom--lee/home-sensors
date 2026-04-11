@@ -18,7 +18,7 @@
       left: 0;
       width: 100%;
       height: 20%;
-      font-size: 4vw;
+      font-size: 4.5vw;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -32,7 +32,7 @@
       left: 0;
       width: 100%;
       height: 40%;
-      font-size: 12vw;
+      font-size: 13vw;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -43,7 +43,7 @@
     #temps {
       position: absolute;
       bottom: 0;
-      right: 0;
+      left: 0;
       width: 50%;
       height: 50%;
       font-size: 5.5vw;
@@ -59,7 +59,7 @@
 
     #temps > span {
       display: flex;
-      justify-content: flex-end;
+      justify-content: flex-start;
       align-items: center;
       gap: 0.3em;
     }
@@ -67,21 +67,22 @@
     #solar {
       position: absolute;
       bottom: 0;
-      left: 0;
+      right: 0;
       width: 50%;
       height: 50%;
       font-size: 5.5vw;
       display: grid;
-      grid-template-columns: 1.5em auto auto;
+      grid-template-columns: auto auto 1.5em;
+      column-gap: 0.3em;
       align-content: space-around;
       align-items: center;
-      padding: 0 2vw 0 0;
+      padding: 0 2vw 0 2vw;
       box-sizing: border-box;
       font-family: "Consolas", "Courier New", monospace;
       font-weight: 500;
     }
 
-    .solar-kw  { text-align: right; }
+    .solar-kw  { text-align: right; white-space: nowrap; }
     .solar-pv  { color: #64c864; }
     .solar-grid { color: #e36464; }
     .solar-batt-kw  { color: #6496e3; }
@@ -194,7 +195,7 @@
         console.log("no temperature reading", data)
         return
       }
-      document.getElementById("temperature").innerHTML = `<span>${format_temperature(temperature)}</span><span>🏠</span>`;
+      document.getElementById("temperature").innerHTML = `<span>🏠</span><span>${format_temperature(temperature)}</span>`;
     }
 
     async function update_bom_temperature() {
@@ -204,7 +205,7 @@
         console.log("no bom temperature reading", data)
         return
       }
-      document.getElementById("bom-temperature").innerHTML = `<span>${format_temperature(temperature)}</span><span>🌳</span>`;
+      document.getElementById("bom-temperature").innerHTML = `<span>🌳</span><span>${format_temperature(temperature)}</span>`;
     }
 
     const SOLAR_FIELDS = [
@@ -222,7 +223,7 @@
       const sign = v => v >= 0 ? '+' : ''
       const net_grid = solar.grid_import_w - solar.grid_export_w
       const row = (icon, kw, extra='') =>
-        `<span>${icon}</span><span class="solar-kw">${kw}</span><span>${extra}</span>`
+        `<span>${extra}</span><span class="solar-kw">${kw}</span><span>${icon}</span>`
       document.getElementById("solar").innerHTML =
         row('🔌', `<span class="solar-load">${(solar.load_w / 1000).toFixed(1)} kW</span>`) +
         row('☀',  `<span class="solar-pv">${(solar.pv_w / 1000).toFixed(1)} kW</span>`) +
