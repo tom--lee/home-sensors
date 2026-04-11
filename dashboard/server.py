@@ -41,11 +41,11 @@ def getBomMeasurements():
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0'
             }
         )
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(request, timeout=5) as response:
             responseJson = json.load(response)
     except urllib.error.URLError as e:
-        print('error: ' + e.reason)
-        print(e.args)
+        print('error: ' + str(e.reason))
+        return {"error": "BOM unavailable"}
     temperature = responseJson['observations']['data'][0]['air_temp']
     return {
         "timestamp": "",
@@ -110,7 +110,7 @@ class SimpleWebServer(BaseHTTPRequestHandler):
             self.end_headers()
 
     def do_PUT(self):
-        device_id, value = self.path[1:].split('/')
+        device_id, value = self.path[1:].split('/', 1)
         if device_id and value:
             self.send_response(200)
             self.send_header("Content-type", "text/plain")

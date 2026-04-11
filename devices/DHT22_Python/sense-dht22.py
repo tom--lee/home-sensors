@@ -25,7 +25,6 @@ GPIO.setmode(GPIO.BCM)
 instance = dht22.DHT22(pin=4)
 
 hostname = '{}:{}'.format(host, port)
-connection = HTTPConnection(hostname)
 
 time.sleep(1)
 def sense():
@@ -36,18 +35,25 @@ def sense():
     humidity = "%.1f" % result.humidity
     values = '{}_{}'.format(temperature, humidity)
     requestPath = '/' + deviceId + '/' + values
-    connection.request("PUT", requestPath)
-    response = connection.getresponse()
-    print(response)
+    conn = HTTPConnection(hostname)
+    try:
+        conn.request("PUT", requestPath)
+        response = conn.getresponse()
+        response.read()
+        print(response.status)
+    finally:
+        conn.close()
 
 count = 0
-while True:
-    try:
-        sense()
-        numMeasurements += 1
-        if count >= numMeasurements:
-            break
+try:
+    while True:
+        try:
+            sense()
+            count += 1
+            if count >= numMeasurements:
+                break
+        except (OSError, ConnectionError) as e:
+            print(f"{type(e).__name__}: {e}")
         time.sleep(sleepTime)
-    except Exception as e:
-        GPIO.cleanup()
-        raise e
+finally:
+    GPIO.cleanup()

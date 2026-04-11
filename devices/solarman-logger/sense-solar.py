@@ -19,8 +19,6 @@ logger_serial = config['loggerSerial']
 logger_port   = config.get('loggerPort', 8899)
 slave_id      = config.get('slaveId', 1)
 
-connection = HTTPConnection(f"{host}:{port}")
-
 FIELD_ORDER = [
     "pv_w", "batt_soc", "batt_v", "batt_w", "grid_import_w", "grid_export_w",
     "load_w", "pv_today_kwh", "pv_total_kwh", "load_today_kwh",
@@ -83,9 +81,12 @@ def read_inverter():
 
 def push(data):
     value = '_'.join(str(round(data[f], 1)) for f in FIELD_ORDER)
-    connection.request("PUT", f"/{device_id}/{value}")
-    response = connection.getresponse()
-    response.read()  # drain
+    conn = HTTPConnection(f"{host}:{port}")
+    try:
+        conn.request("PUT", f"/{device_id}/{value}")
+        conn.getresponse().read()
+    finally:
+        conn.close()
 
 while True:
     try:

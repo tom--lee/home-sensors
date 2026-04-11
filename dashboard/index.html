@@ -189,23 +189,23 @@
     }
 
     async function update_temperature() {
-      const data = await get_sensor_data('living-room')
-      const temperature = parseFloat(data.value.split('_')[0])
-      if (isNaN(temperature)) {
-        console.log("no temperature reading", data)
-        return
-      }
-      document.getElementById("temperature").innerHTML = `<span>🏠</span><span>${format_temperature(temperature)}</span>`;
+      try {
+        const data = await get_sensor_data('living-room')
+        if (!data.value) return
+        const temperature = parseFloat(data.value.split('_')[0])
+        if (isNaN(temperature)) return
+        document.getElementById("temperature").innerHTML = `<span>🏠</span><span>${format_temperature(temperature)}</span>`;
+      } catch (e) { console.log("temperature fetch failed", e) }
     }
 
     async function update_bom_temperature() {
-      const data = await get_sensor_data('bom')
-      const temperature = parseFloat(data.value)
-      if (isNaN(temperature)) {
-        console.log("no bom temperature reading", data)
-        return
-      }
-      document.getElementById("bom-temperature").innerHTML = `<span>🌳</span><span>${format_temperature(temperature)}</span>`;
+      try {
+        const data = await get_sensor_data('bom')
+        if (!data.value) return
+        const temperature = parseFloat(data.value)
+        if (isNaN(temperature)) return
+        document.getElementById("bom-temperature").innerHTML = `<span>🌳</span><span>${format_temperature(temperature)}</span>`;
+      } catch (e) { console.log("bom fetch failed", e) }
     }
 
     const SOLAR_FIELDS = [
