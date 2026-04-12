@@ -88,10 +88,20 @@
     .solar-batt-kw  { color: #6496e3; }
     .solar-batt-soc { color: #6496e3; padding-left: 0.5em; }
     .solar-load { color: #e3a864; }
+
+    #stale {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 5vw;
+      padding: 0.5vw 1vw;
+      display: none;
+    }
   </style>
 </head>
 
 <body>
+  <span id="stale">⚠</span>
   <span id="date"></span>
   <span id="time"></span>
   <div id="temps">
@@ -188,10 +198,21 @@
       return JSON.parse(responseBody);
     }
 
+    const STALE_MS = 6 * 60 * 1000
+    const staleState = {}
+
+    function checkStale(source, timestamp) {
+      if (!timestamp) { staleState[source] = true; return }
+      staleState[source] = (Date.now() - new Date(timestamp).getTime()) > STALE_MS
+      document.getElementById("stale").style.display =
+        Object.values(staleState).some(v => v) ? 'block' : 'none'
+    }
+
     async function update_temperature() {
       try {
         const data = await get_sensor_data('living-room')
         if (!data.value) return
+        checkStale('living-room', data.timestamp)
         const temperature = parseFloat(data.value.split('_')[0])
         if (isNaN(temperature)) return
         document.getElementById("temperature").innerHTML = `<span>🏠</span><span>${format_temperature(temperature)}</span>`;
@@ -218,6 +239,7 @@
     async function update_solar() {
       const data = await get_sensor_data('solar')
       if (!data.value) return
+      checkStale('solar', data.timestamp)
       const vals = data.value.split('_').map(Number)
       const solar = Object.fromEntries(SOLAR_FIELDS.map((k, i) => [k, vals[i]]))
       const sign = v => v >= 0 ? '+' : ''
