@@ -3,7 +3,7 @@
 import json
 import os
 import sys
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone
 import urllib.request
 import urllib.error
@@ -121,7 +121,7 @@ class SimpleWebServer(BaseHTTPRequestHandler):
             self.send_response(400)
             self.end_headers()
 
-def run(server_class=HTTPServer, handler_class=SimpleWebServer, port=8000):
+def run(server_class=ThreadingHTTPServer, handler_class=SimpleWebServer, port=8000):
     server_address = ('0.0.0.0', port)
     httpd = server_class(server_address, handler_class)
     print(f"Starting httpd on port {port}...")
