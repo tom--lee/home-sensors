@@ -70,24 +70,11 @@
       right: 0;
       width: 50%;
       height: 50%;
-      font-size: 5.5vw;
-      display: grid;
-      grid-template-columns: auto auto 1.5em;
-      column-gap: 0.3em;
-      align-content: space-around;
-      align-items: center;
-      padding: 0 2vw 0 2vw;
+      padding: 1vw 2vw;
       box-sizing: border-box;
-      font-family: "Consolas", "Courier New", monospace;
-      font-weight: 500;
     }
 
-    .solar-kw  { text-align: right; white-space: nowrap; }
-    .solar-pv  { color: #64c864; }
-    .solar-grid { color: #e36464; }
-    .solar-batt-kw  { color: #6496e3; }
-    .solar-batt-soc { color: #6496e3; padding-left: 0.5em; }
-    .solar-load { color: #e3a864; }
+    #solar svg { width: 100%; height: 100%; }
 
     #stale {
       position: absolute;
@@ -241,17 +228,55 @@
       if (!data.value) return
       checkStale('solar', data.timestamp)
       const vals = data.value.split('_').map(Number)
-      const solar = Object.fromEntries(SOLAR_FIELDS.map((k, i) => [k, vals[i]]))
-      const sign = v => v >= 0 ? '+' : ''
-      const net_grid = solar.grid_import_w - solar.grid_export_w
-      const row = (icon, kw, extra='') =>
-        `<span>${extra}</span><span class="solar-kw">${kw}</span><span>${icon}</span>`
-      document.getElementById("solar").innerHTML =
-        row('🔌', `<span class="solar-load">${(solar.load_w / 1000).toFixed(1)} kW</span>`) +
-        row('☀',  `<span class="solar-pv">${(solar.pv_w / 1000).toFixed(1)} kW</span>`) +
-        row('🔋', `<span class="solar-batt-kw">${sign(solar.batt_w)}${(solar.batt_w / 1000).toFixed(1)} kW</span>`,
-                  `<span class="solar-batt-soc">${Math.round(solar.batt_soc)}%</span>`) +
-        row('⚡', `<span class="solar-grid">${sign(net_grid)}${(net_grid / 1000).toFixed(1)} kW</span>`)
+      const s = Object.fromEntries(SOLAR_FIELDS.map((k, i) => [k, vals[i]]))
+
+      const batt_chg = Math.max(0, -s.batt_w)
+      const batt_dis = Math.max(0, s.batt_w)
+
+      // Consumption: load + battery charging + grid export
+      const demand = [
+        { v: s.load_w,        c: '#f0d832', l: '🔌' },
+        { v: batt_chg,        c: '#6496e3', l: '🔋' },
+        { v: s.grid_export_w, c: '#e36464', l: '⚡' },
+      ]
+      // Supply: solar + battery discharge + grid import
+      const supply = [
+        { v: s.pv_w,          c: '#f0d832', l: '☀' },
+        { v: batt_dis,        c: '#6496e3', l: '🔋' },
+        { v: s.grid_import_w, c: '#e36464', l: '⚡' },
+      ]
+
+      const demandTotal = demand.reduce((a, d) => a + d.v, 0)
+      const supplyTotal = supply.reduce((a, d) => a + d.v, 0)
+      const maxW = Math.max(demandTotal, supplyTotal, 1)
+
+      const W = 180  // bar area width
+      const barH = 16
+      const y1 = 8, y2 = 36
+
+      function bar(segments, y) {
+        let rects = '', x = W
+        for (const seg of segments) {
+          const w = (seg.v / maxW) * W
+          if (w < 0.5) continue
+          x -= w
+          rects += `<rect x="${x}" y="${y}" width="${w}" height="${barH}" fill="${seg.c}"/>`
+          if (w > 18) {
+            rects += `<text x="${x + w/2}" y="${y + barH/2 + 1}" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="7" font-family="Consolas, monospace">${seg.l} ${(seg.v/1000).toFixed(1)}</text>`
+          }
+        }
+        return rects
+      }
+
+      const soc = Math.round(s.batt_soc)
+      document.getElementById("solar").innerHTML = `
+        <svg viewBox="0 0 200 72">
+          <text x="195" y="6" text-anchor="end" fill="#e36464" font-size="6" font-family="Consolas, monospace">Demand</text>
+          ${bar(demand, y1)}
+          <text x="195" y="34" text-anchor="end" fill="#64c864" font-size="6" font-family="Consolas, monospace">Supply</text>
+          ${bar(supply, y2)}
+          <text x="195" y="70" text-anchor="end" fill="#6496e3" font-size="14.4" font-family="Consolas, monospace">🔋 ${soc}%</text>
+        </svg>`
     }
 
     // Call the function once to display the time immediately
