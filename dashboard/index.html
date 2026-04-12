@@ -69,14 +69,14 @@
       bottom: 0;
       right: 0;
       width: 50%;
-      height: 50%;
+      height: 55%;
       padding: 1vw 2vw;
       box-sizing: border-box;
     }
 
     #solar-legend {
       position: absolute;
-      top: 20%;
+      top: 15%;
       right: 0;
       padding: 1vw 2vw;
       box-sizing: border-box;
@@ -262,7 +262,7 @@
 
       // Consumption: load + battery charging + grid export
       const demand = [
-        { v: s.load_w,        c: '#e3a864', l: '🔌' },
+        { v: s.load_w,        c: '#e88430', l: '🔌' },
         { v: batt_chg,        c: '#6496e3', l: '🔋' },
         { v: s.grid_export_w, c: '#e36464', l: '⚡' },
       ]
@@ -298,19 +298,22 @@
             remaining -= piece
           }
         }
-        return rects
+        return { svg: rects, leftX: x }
       }
 
       const soc = Math.round(s.batt_soc)
 
+      const demandBar = bar(demand, y1)
+      const supplyBar = bar(supply, y2)
+
       document.getElementById("solar").innerHTML = `
         <svg viewBox="0 0 200 120">
           <text x="198" y="14" text-anchor="end" fill="#e36464" font-size="14" font-family="Consolas, monospace">Demand</text>
-          ${bar(demand, y1)}
-          <text x="5" y="${y1 + barH + 17}" fill="#e36464" font-size="18" font-family="Consolas, monospace">${(demandTotal/1000).toFixed(1)} kW</text>
+          ${demandBar.svg}
+          <text x="${Math.max(0, demandBar.leftX - 5)}" y="${y1 + barH + 17}" fill="#e36464" font-size="16" font-family="Consolas, monospace">${(demandTotal/1000).toFixed(1)} kW</text>
           <text x="198" y="62" text-anchor="end" fill="#64c864" font-size="14" font-family="Consolas, monospace">Supply</text>
-          ${bar(supply, y2)}
-          <text x="198" y="110" text-anchor="end" fill="#6496e3" font-size="14" font-family="Consolas, monospace">🔋 ${soc}%</text>
+          ${supplyBar.svg}
+          <text x="198" y="110" text-anchor="end" fill="#6496e3" font-size="16" font-family="Consolas, monospace">🔋 ${soc}%</text>
         </svg>`
     }
 
@@ -320,7 +323,7 @@
     update_solar();
 
     document.getElementById("solar-legend").innerHTML = `
-      <span style="color:#e3a864"><span class="swatch" style="background:#e3a864"></span>🔌 Load</span>
+      <span style="color:#e88430"><span class="swatch" style="background:#e88430"></span>🔌 Load</span>
       <span style="color:#f0d832"><span class="swatch" style="background:#f0d832"></span>☀ Solar</span>
       <span style="color:#6496e3"><span class="swatch" style="background:#6496e3"></span>🔋 Batt</span>
       <span style="color:#e36464"><span class="swatch" style="background:#e36464"></span>⚡ Grid</span>
