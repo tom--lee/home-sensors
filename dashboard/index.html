@@ -235,7 +235,7 @@
 
       // Consumption: load + battery charging + grid export
       const demand = [
-        { v: s.load_w,        c: '#f0d832', l: '🔌' },
+        { v: s.load_w,        c: '#e3a864', l: '🔌' },
         { v: batt_chg,        c: '#6496e3', l: '🔋' },
         { v: s.grid_export_w, c: '#e36464', l: '⚡' },
       ]
@@ -252,17 +252,23 @@
 
       const W = 180  // bar area width
       const barH = 16
-      const y1 = 8, y2 = 36
+      const y1 = 53, y2 = 83
+      const gap = 1.5  // gap between chunks
+      const chunkW = 200  // 0.2kW per chunk in watts
+      const scaleW = Math.max(demandTotal, supplyTotal) > 2000 ? 10000 : 2000
 
       function bar(segments, y) {
         let rects = '', x = W
         for (const seg of segments) {
-          const w = (seg.v / maxW) * W
-          if (w < 0.5) continue
-          x -= w
-          rects += `<rect x="${x}" y="${y}" width="${w}" height="${barH}" fill="${seg.c}"/>`
-          if (w > 18) {
-            rects += `<text x="${x + w/2}" y="${y + barH/2 + 1}" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="7" font-family="Consolas, monospace">${seg.l} ${(seg.v/1000).toFixed(1)}</text>`
+          if (seg.v < 1) continue
+          let remaining = seg.v
+          while (remaining > 0) {
+            const piece = Math.min(remaining, chunkW)
+            const w = (piece / scaleW) * W
+            if (w < 0.5) break
+            x -= w + gap
+            rects += `<rect x="${x + gap}" y="${y}" width="${w}" height="${barH}" fill="${seg.c}" rx="2"/>`
+            remaining -= piece
           }
         }
         return rects
@@ -270,24 +276,17 @@
 
       const soc = Math.round(s.batt_soc)
 
-      let gridlines = ''
-      const showMinor = maxW <= 2000
-      for (let w = 100; w < maxW; w += 100) {
-        const x = W - (w / maxW) * W
-        const major = w % 1000 === 0
-        if (!major && !showMinor) continue
-        const color = major ? '#fff' : '#aaa'
-        gridlines += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2 + barH}" stroke="${color}" stroke-width="${major ? 0.7 : 0.3}"/>`
-      }
-
       document.getElementById("solar").innerHTML = `
-        <svg viewBox="0 0 200 72">
-          <text x="195" y="6" text-anchor="end" fill="#e36464" font-size="6" font-family="Consolas, monospace">Demand</text>
+        <svg viewBox="0 0 200 120">
+          <rect x="160" y="2" width="7" height="7" fill="#e3a864" rx="1"/><text x="169" y="8" fill="#e3a864" font-size="7" font-family="Consolas, monospace">🔌 Load</text>
+          <rect x="160" y="12" width="7" height="7" fill="#f0d832" rx="1"/><text x="169" y="18" fill="#f0d832" font-size="7" font-family="Consolas, monospace">☀ Solar</text>
+          <rect x="160" y="22" width="7" height="7" fill="#6496e3" rx="1"/><text x="169" y="28" fill="#6496e3" font-size="7" font-family="Consolas, monospace">🔋 Batt</text>
+          <rect x="160" y="32" width="7" height="7" fill="#e36464" rx="1"/><text x="169" y="38" fill="#e36464" font-size="7" font-family="Consolas, monospace">⚡ Grid</text>
+          <text x="195" y="50" text-anchor="end" fill="#e36464" font-size="9" font-family="Consolas, monospace">Demand</text>
           ${bar(demand, y1)}
-          <text x="195" y="34" text-anchor="end" fill="#64c864" font-size="6" font-family="Consolas, monospace">Supply</text>
+          <text x="195" y="80" text-anchor="end" fill="#64c864" font-size="9" font-family="Consolas, monospace">Supply</text>
           ${bar(supply, y2)}
-          ${gridlines}
-          <text x="195" y="70" text-anchor="end" fill="#6496e3" font-size="14.4" font-family="Consolas, monospace">🔋 ${soc}%</text>
+          <text x="195" y="112" text-anchor="end" fill="#6496e3" font-size="14.4" font-family="Consolas, monospace">🔋 ${soc}%</text>
         </svg>`
     }
 
