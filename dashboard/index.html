@@ -262,7 +262,7 @@
 
       // Consumption: load + battery charging + grid export
       const demand = [
-        { v: s.load_w,        c: '#e88430', l: '🔌' },
+        { v: s.load_w,        c: '#f5b878', l: '🔌' },
         { v: batt_chg,        c: '#6496e3', l: '🔋' },
         { v: s.grid_export_w, c: '#e36464', l: '⚡' },
       ]
@@ -323,7 +323,7 @@
     update_solar();
 
     document.getElementById("solar-legend").innerHTML = `
-      <span style="color:#e88430"><span class="swatch" style="background:#e88430"></span>🔌 Load</span>
+      <span style="color:#f5b878"><span class="swatch" style="background:#f5b878"></span>🔌 Load</span>
       <span style="color:#f0d832"><span class="swatch" style="background:#f0d832"></span>☀ Solar</span>
       <span style="color:#6496e3"><span class="swatch" style="background:#6496e3"></span>🔋 Batt</span>
       <span style="color:#e36464"><span class="swatch" style="background:#e36464"></span>⚡ Grid</span>
