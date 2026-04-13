@@ -307,7 +307,7 @@
       const supplyBar = bar(supply, y2)
 
       document.getElementById("solar").innerHTML = `
-        <svg viewBox="-70 0 270 120">
+        <svg viewBox="0 0 200 120" style="overflow:visible">
           <text x="198" y="14" text-anchor="end" fill="#e36464" font-size="14" font-family="Consolas, monospace">Demand</text>
           ${demandBar.svg}
           <text x="${demandBar.leftX - 3}" y="${y1 + barH/2 + 1}" text-anchor="end" dominant-baseline="middle" fill="#e36464" font-size="16" font-family="Consolas, monospace">${(demandTotal/1000).toFixed(1)} kW</text>
